@@ -5,6 +5,8 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+renderer.setClearColor(0xb7c3f3, 1)
+
 const light = new THREE.AmbientLight( 0xffffff ); // soft white light
 scene.add( light );
 // const geometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -16,13 +18,37 @@ camera.position.z = 5;
 
 const loader = new THREE.GLTFLoader();
 
-loader.load("../model/scene.gltf", function(gltf){
-    scene.add(gltf.scene)
-    gltf.scene.scale.set(.4, .4, .4); 
-})
+class Doll {
+    constructor(){
+        loader.load("../model/scene.gltf", (gltf) => {
+            scene.add(gltf.scene)
+            gltf.scene.scale.set(.4, .4, .4); 
+            gltf.scene.position.set(0, -1, 0)
+            this.doll = gltf.scene;
+        })
+    }
+
+    lookBack(){
+        this.doll.rotation.y = -1
+    }
+}
+
+let doll = new Doll()
+setTimeout(() => {
+    doll.lookBack()
+}, 1000)
 
 function animate() {
 	renderer.render( scene, camera );
 	requestAnimationFrame( animate );
 }
 animate();
+
+window.addEventListener("resize", onWindowResize, false);
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
