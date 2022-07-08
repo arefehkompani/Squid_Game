@@ -48,12 +48,46 @@ class Doll {
 }
 
 function createTrack(){
-    createCube({w: start_position*2, h: 1.5, d: 1}, 0, 0).position.z = -.85
+    createCube({w: start_position*2+.2, h: 1.5, d: 1}, 0, 0, 0xe5a716).position.z = -1
     createCube({w: .2, h: 1.5, d: 1}, start_position, -.35)
     createCube({w: .2, h: 1.5, d: 1}, end_position, .35)
 }
 
 createTrack()
+
+class Player{
+    constructor(){
+        const geometry = new THREE.SphereGeometry( .3, 32, 16 );
+        const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+        const sphere = new THREE.Mesh( geometry, material );
+        sphere.position.x = start_position
+        sphere.position.z = 1
+        scene.add( sphere );
+        this.player = sphere
+        this.playerInfo = {
+            positionX: start_position,
+            velocity: 0
+        }
+    }
+
+    run(){
+        this.playerInfo.velocity = .03
+    }
+
+    stop(){
+        // this.playerInfo.velocity = 0
+        gsap.to(this.playerInfo, {
+            velocity: 0, 
+            duration: .1
+        })
+    }
+
+    update(){
+        this.playerInfo.positionX -= this.playerInfo.velocity
+        this.player.position.x = this.playerInfo.positionX
+    }
+}
+const player = new Player()
 
 let doll = new Doll()
 setTimeout(() => {
@@ -63,6 +97,7 @@ setTimeout(() => {
 function animate() {
 	renderer.render( scene, camera );
 	requestAnimationFrame( animate );
+    player.update()
 }
 animate();
 
@@ -74,3 +109,15 @@ function onWindowResize() {
 
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
+
+window.addEventListener('keydown', (e) => {
+    if(e.key == "ArrowUp"){
+        player.run()
+    }
+})
+
+window.addEventListener('keyup', (e) => {
+    if(e.key == "ArrowUp"){
+        player.stop()
+    }
+})
